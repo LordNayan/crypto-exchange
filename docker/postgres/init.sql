@@ -1,0 +1,2 @@
+-- Add any initial SQL commands here, e.g., creating extensions
+-- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
