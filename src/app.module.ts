@@ -3,11 +3,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './events/events.module';
+import { BitcoinModule } from './bitcoin/bitcoin.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import rateLimit from 'express-rate-limit';
 
 @Module({
-  imports: [AuthModule, EventsModule],
+  imports: [AuthModule, EventsModule, BitcoinModule],
   controllers: [AppController],
   providers: [AppService],
 })

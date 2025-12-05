@@ -1,29 +1,29 @@
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: crypto-exchange-api
-    ports:
-      - "${PORT:-3000}:3000"
-    environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_DB=${POSTGRES_DB:-crypto_exchange}
-      - REDIS_HOST=redis
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - JWT_SECRET=${JWT_SECRET:-super_secret_jwt_key_change_me}
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - crypto-network
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: crypto-exchange-api
+  #   ports:
+  #     - "${PORT:-3000}:3000"
+  #   environment:
+  #     - NODE_ENV=${NODE_ENV:-development}
+  #     - POSTGRES_HOST=postgres
+  #     - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+  #     - POSTGRES_USER=${POSTGRES_USER:-postgres}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+  #     - POSTGRES_DB=${POSTGRES_DB:-crypto_exchange}
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=${REDIS_PORT:-6379}
+  #     - JWT_SECRET=${JWT_SECRET:-super_secret_jwt_key_change_me}
+  #   volumes:
+  #     - .:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #   networks:
+  #     - crypto-network
 
   postgres:
     image: postgres:15-alpine
@@ -50,6 +50,24 @@ services:
     networks:
       - crypto-network
 
+  bitcoind:
+    image: ruimarinho/bitcoin-core:24
+    container_name: crypto-exchange-bitcoind
+    ports:
+      - "${BITCOIN_RPC_PORT:-18332}:18332"
+    command:
+      - -testnet=1
+      - -server=1
+      - -rpcuser=${BITCOIN_RPC_USER:-bitcoin}
+      - -rpcpassword=${BITCOIN_RPC_PASSWORD:-bitcoin}
+      - -rpcallowip=0.0.0.0/0
+      - -rpcbind=0.0.0.0
+      - -txindex=1
+    volumes:
+      - bitcoin_data:/home/bitcoin/.bitcoin
+    networks:
+      - crypto-network
+
 networks:
   crypto-network:
     driver: bridge
@@ -57,3 +75,4 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  bitcoin_data:
