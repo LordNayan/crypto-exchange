@@ -4,11 +4,20 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './events/events.module';
 import { BitcoinModule } from './bitcoin/bitcoin.module';
+import { EthereumModule } from './ethereum/ethereum.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import rateLimit from 'express-rate-limit';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './common/config/configuration';
 
 @Module({
-  imports: [AuthModule, EventsModule, BitcoinModule],
+  imports: [
+    AuthModule,
+    EventsModule,
+    BitcoinModule,
+    EthereumModule,
+    ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

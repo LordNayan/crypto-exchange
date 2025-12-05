@@ -1,4 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from "@nestjs/config";
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Client = require('bitcoin-core');
 
@@ -6,15 +8,17 @@ const Client = require('bitcoin-core');
 export class BitcoinService implements OnModuleInit {
   private client: any;
   private readonly logger = new Logger(BitcoinService.name);
+  private readonly configService: ConfigService
 
-  constructor() {
-    const host = process.env.BITCOIN_RPC_HOST || 'localhost';
-    const port = parseInt(process.env.BITCOIN_RPC_PORT || '18332', 10);
+  constructor(configService: ConfigService) {
+    this.configService = configService;
+    const host = this.configService.get<string>('bitcoin.rpcHost') || 'localhost';
+    const port = parseInt(this.configService.get<string>('bitcoin.rpcPort') || '18332', 10);
     const walletName = 'crypto-exchange-wallet';
 
     this.client = new Client({
-      username: process.env.BITCOIN_RPC_USER || 'bitcoin',
-      password: process.env.BITCOIN_RPC_PASSWORD || 'bitcoin',
+      username: this.configService.get<string>('bitcoin.rpcUser') || 'bitcoin',
+      password: this.configService.get<string>('bitcoin.rpcPassword') || 'bitcoin',
       host: `http://${host}:${port}`,
       wallet: walletName,
       timeout: 30000,
@@ -24,11 +28,11 @@ export class BitcoinService implements OnModuleInit {
   async onModuleInit() {
     try {
       // Create a temporary client without wallet context to check/create wallet
-      const host = process.env.BITCOIN_RPC_HOST || 'localhost';
-      const port = parseInt(process.env.BITCOIN_RPC_PORT || '18332', 10);
+      const host = this.configService.get<string>('bitcoin.rpcHost') || 'localhost';
+      const port = parseInt(this.configService.get<string>('bitcoin.rpcPort') || '18332', 10);
       const baseClient = new Client({
-        username: process.env.BITCOIN_RPC_USER || 'bitcoin',
-        password: process.env.BITCOIN_RPC_PASSWORD || 'bitcoin',
+        username: this.configService.get<string>('bitcoin.rpcUser') || 'bitcoin',
+        password: this.configService.get<string>('bitcoin.rpcPassword') || 'bitcoin',
         host: `http://${host}:${port}`,
         timeout: 30000,
       });
