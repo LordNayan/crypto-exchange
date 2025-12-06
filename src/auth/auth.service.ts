@@ -28,8 +28,7 @@ export class AuthService {
     signature: string,
     payload: string,
   ): boolean {
-    const hmac = createHmac('sha384', secret);
-    const calculatedSignature = hmac.update(payload).digest('hex');
+    const calculatedSignature = this.generateSignature(secret, payload);
     return calculatedSignature === signature;
   }
 
