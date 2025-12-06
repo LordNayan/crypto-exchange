@@ -8,6 +8,7 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, WebSocket } from 'ws';
+import { IncomingMessage } from 'http';
 import { AuthService } from '../auth/auth.service';
 import { Logger } from '@nestjs/common';
 
@@ -45,12 +46,37 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }, 30000);
   }
 
-  handleConnection(client: AuthenticatedSocket) {
+  handleConnection(client: AuthenticatedSocket, req: IncomingMessage) {
     client.isAlive = true;
     client.requestCount = 0;
     client.lastRequestReset = Date.now();
     client.on('pong', () => (client.isAlive = true));
-    this.logger.log('Client connected');
+    
+    // Extract userId from query params or auth token
+    // For MVP, we'll assume it's passed in query: ?userId=...
+    // In production, use JWT validation
+    const url = new URL(req.url || '', 'http://localhost');
+    const userId = url.searchParams.get('userId');
+
+    if (userId) {
+      client.userId = userId;
+      this.joinRoom(client, userId);
+      this.logger.log(`Client connected: ${userId}`);
+    } else {
+      this.logger.log('Client connected without userId');
+    }
+  }
+
+  emitToUser(userId: string, event: string, data: any) {
+    const room = this.rooms.get(userId);
+    if (room) {
+      const message = JSON.stringify({ event, data });
+      room.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(message);
+        }
+      });
+    }
   }
 
   handleDisconnect(client: AuthenticatedSocket) {

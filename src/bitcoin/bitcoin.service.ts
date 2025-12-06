@@ -124,4 +124,30 @@ export class BitcoinService implements OnModuleInit {
       }
     }, 60000); // Poll every minute
   }
+
+  async getBlockCount(): Promise<number> {
+    return await this.client.getBlockCount();
+  }
+
+  async getBlockHash(height: number): Promise<string> {
+    return await this.client.getBlockHash(height);
+  }
+
+  async getBlock(hash: string): Promise<any> {
+    return await this.client.getBlock(hash, 2); // verbosity 2 = include transaction details
+  }
+
+  async getTransaction(txid: string): Promise<any> {
+    return await this.client.getTransaction(txid);
+  }
+
+  async getConfirmations(txid: string): Promise<number> {
+    try {
+      const tx = await this.client.getTransaction(txid);
+      return tx.confirmations || 0;
+    } catch (error) {
+      this.logger.error(`Failed to get confirmations for ${txid}`, error);
+      return 0;
+    }
+  }
 }

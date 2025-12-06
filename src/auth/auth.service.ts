@@ -8,7 +8,7 @@ export class AuthService {
   private apiKeys: ApiKey[] = [
     new ApiKey({
       id: '1',
-      userId: 'user-1',
+      userId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
       publicKey: 'demo-public-key',
       secretKey: 'demo-secret-key',
       permissions: ['read', 'write'],

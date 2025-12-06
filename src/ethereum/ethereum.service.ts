@@ -98,6 +98,19 @@ export class EthereumService implements OnModuleInit {
     });
   }
 
+  async getConfirmations(txHash: string): Promise<number> {
+    try {
+      const tx = await this.provider.getTransaction(txHash);
+      if (!tx || !tx.blockNumber) return 0;
+
+      const currentBlock = await this.provider.getBlockNumber();
+      return currentBlock - tx.blockNumber + 1;
+    } catch (error) {
+      this.logger.error(`Failed to get confirmations for ${txHash}`, error);
+      return 0;
+    }
+  }
+  
   // Helper for ERC20 interaction (placeholder)
   getContract(address: string, abi: any[]) {
     return new ethers.Contract(address, abi, this.provider);
